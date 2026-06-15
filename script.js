@@ -5,6 +5,10 @@
 (function () {
   'use strict';
 
+  I18n.init();
+
+  var t = I18n.t;
+
   /* ---------- Header background on scroll ---------- */
   var header = document.querySelector('.site-header');
   if (header) {
@@ -89,24 +93,38 @@
     return '' +
       '<article class="card">' +
         '<div class="card-head">' +
-          '<h3>Lorem Ipsum</h3>' +
-          '<button class="heart" aria-label="Tilføj til favoritter">' + heartSvg + '</button>' +
+          '<h3>' + t('refs.card.title') + '</h3>' +
+          '<button class="heart" aria-label="' + t('refs.card.fav') + '">' + heartSvg + '</button>' +
         '</div>' +
         '<div class="placeholder card-thumb" aria-hidden="true"></div>' +
         '<div class="card-foot">' +
-          '<span class="card-price">Lorem dolor</span>' +
-          '<button class="btn btn-dark">Book nu</button>' +
+          '<span class="card-price">' + t('refs.card.price') + '</span>' +
+          '<button class="btn btn-dark">' + t('refs.card.book') + '</button>' +
         '</div>' +
       '</article>';
   }
 
   var cardGrid = document.getElementById('cardGrid');
   var showMore = document.getElementById('showMore');
+  var cardsExpanded = false;
+
   function addCards(n) {
     if (!cardGrid) return;
     var html = '';
     for (var i = 0; i < n; i++) html += cardTemplate();
     cardGrid.insertAdjacentHTML('beforeend', html);
+  }
+
+  function refreshCards() {
+    if (!cardGrid) return;
+    var count = cardGrid.querySelectorAll('.card').length || 8;
+    cardGrid.innerHTML = '';
+    addCards(count);
+  }
+
+  function updateShowMoreLabel() {
+    if (!showMore) return;
+    showMore.textContent = t(cardsExpanded ? 'refs.showLess' : 'refs.showMore');
   }
   addCards(8);
 
@@ -117,47 +135,44 @@
     });
   }
   if (showMore) {
-    var expanded = false;
     showMore.addEventListener('click', function () {
-      if (expanded) return;
-      addCards(4);
-      showMore.textContent = 'Vis færre';
-      expanded = true;
-      // simple toggle back
-      showMore.onclick = function () {
+      if (!cardsExpanded) {
+        addCards(4);
+        cardsExpanded = true;
+      } else {
         var cards = cardGrid.querySelectorAll('.card');
         for (var i = cards.length - 1; i >= 8; i--) cards[i].remove();
-        showMore.textContent = 'Vis mere';
-        expanded = false;
-        showMore.onclick = null;
-      };
+        cardsExpanded = false;
+      }
+      updateShowMoreLabel();
     });
   }
 
   /* ---------- Testimonials carousel ---------- */
   var testimonialData = [
-    { name: 'Vivoh Robert', role: 'Manager, Finland', rating: '4.5', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.' },
-    { name: 'Maria Holm', role: 'Direktør, Danmark', rating: '5.0', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam quis nostrud exercitation.' },
-    { name: 'Jonas Berg', role: 'Arkitekt, Norge', rating: '4.8', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit voluptate.' },
-    { name: 'Sofie Lind', role: 'Bygherre, Sverige', rating: '4.7', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur sint occaecat cupidatat non proident.' },
-    { name: 'Anders Kjær', role: 'Entreprenør, Danmark', rating: '4.9', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nemo enim ipsam voluptatem quia voluptas sit.' },
-    { name: 'Emma Dahl', role: 'Konsulent, Finland', rating: '5.0', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque porro quisquam est qui dolorem ipsum.' }
+    { name: 'Vivoh Robert', rating: '4.5', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore.' },
+    { name: 'Maria Holm', rating: '5.0', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam quis nostrud exercitation.' },
+    { name: 'Jonas Berg', rating: '4.8', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit voluptate.' },
+    { name: 'Sofie Lind', rating: '4.7', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur sint occaecat cupidatat non proident.' },
+    { name: 'Anders Kjær', rating: '4.9', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nemo enim ipsam voluptatem quia voluptas sit.' },
+    { name: 'Emma Dahl', rating: '5.0', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque porro quisquam est qui dolorem ipsum.' }
   ];
 
   var star = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>';
 
-  function testimonialCard(t) {
+  function testimonialCard(tData, index) {
+    var role = I18n.getTestimonialRole(index);
     return '' +
       '<article class="testimonial">' +
         '<div class="testimonial-head">' +
           '<div class="avatar" aria-hidden="true"></div>' +
           '<div class="meta">' +
-            '<div class="name">' + t.name + '</div>' +
-            '<div class="role">' + t.role + '</div>' +
+            '<div class="name">' + tData.name + '</div>' +
+            '<div class="role">' + role + '</div>' +
           '</div>' +
-          '<div class="rating">' + star + t.rating + '</div>' +
+          '<div class="rating">' + star + tData.rating + '</div>' +
         '</div>' +
-        '<p>"' + t.text + '"</p>' +
+        '<p>"' + tData.text + '"</p>' +
       '</article>';
   }
 
@@ -179,7 +194,9 @@
     var slice = testimonialData.slice(start, start + pp);
     testimonialsEl.style.opacity = '0';
     setTimeout(function () {
-      testimonialsEl.innerHTML = slice.map(testimonialCard).join('');
+      testimonialsEl.innerHTML = slice.map(function (item, i) {
+        return testimonialCard(item, start + i);
+      }).join('');
       testimonialsEl.style.opacity = '1';
     }, 120);
 
@@ -187,7 +204,7 @@
       var dots = '';
       for (var i = 0; i < pageCount(); i++) {
         dots += '<button class="dot' + (i === page ? ' is-active' : '') +
-          '" aria-label="Gå til side ' + (i + 1) + '" data-page="' + i + '"></button>';
+          '" aria-label="' + t('testimonials.page') + ' ' + (i + 1) + '" data-page="' + i + '"></button>';
       }
       dotsEl.innerHTML = dots;
     }
@@ -240,20 +257,20 @@
         consent: form.consent.checked
       };
 
-      ok = setError('name', data.name ? '' : 'Indtast venligst dit navn.') && ok;
+      ok = setError('name', data.name ? '' : t('form.error.name')) && ok;
 
       var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
-      ok = setError('email', emailOk ? '' : 'Indtast en gyldig email-adresse.') && ok;
+      ok = setError('email', emailOk ? '' : t('form.error.email')) && ok;
 
       // phone optional, but if filled must look phone-ish
       if (data.phone && !/^[+\d][\d\s().-]{5,}$/.test(data.phone)) {
-        ok = setError('phone', 'Indtast et gyldigt telefonnummer.') && ok;
+        ok = setError('phone', t('form.error.phone')) && ok;
       } else {
         setError('phone', '');
       }
 
-      ok = setError('message', data.message.length >= 5 ? '' : 'Skriv en kort besked (min. 5 tegn).') && ok;
-      ok = setError('consent', data.consent ? '' : 'Du skal acceptere betingelserne.') && ok;
+      ok = setError('message', data.message.length >= 5 ? '' : t('form.error.message')) && ok;
+      ok = setError('consent', data.consent ? '' : t('form.error.consent')) && ok;
 
       return ok ? data : null;
     }
@@ -282,4 +299,10 @@
       if (e.target.name) setError(e.target.name, '');
     });
   }
+
+  I18n.onChange(function () {
+    refreshCards();
+    updateShowMoreLabel();
+    renderTestimonials();
+  });
 })();
