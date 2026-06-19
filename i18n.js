@@ -8,8 +8,8 @@
 
   var strings = {
   da: {
-    'meta.title': 'Nemingeniør — Certificeret Brændrådgiver',
-    'meta.description': 'Nemingeniør — certificeret brændrådgiver. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    'meta.title': 'Nemingeniør — Certificeret Brandrådgiver',
+    'meta.description': 'Nemingeniør — certificeret brandrådgiver. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     'lang.aria': 'Vælg sprog',
     'nav.aria': 'Hovedmenu',
     'nav.home': 'Forside',
@@ -18,10 +18,10 @@
     'nav.contact': 'Kontakt',
     'nav.search': 'Søg',
     'nav.open': 'Åbn menu',
-    'brand.name': 'Certificeret<br />Brændrådgiver',
+    'brand.name': 'Certificeret<br />Brandrådgiver',
     'brand.sub': 'En del af Nemingeniør',
     'hero.eyebrow': 'Neque porro quisquam est qui dolorem ipsum quia.',
-    'hero.title': 'Certificeret Brændrådgiver',
+    'hero.title': 'Certificeret Brandrådgiver',
     'hero.lead': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.',
     'hero.tab.book': 'Book nu',
     'hero.tab.refs': 'Se referencer',
